@@ -31,19 +31,17 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   console.log("Логин:", username);
   console.log("Пароль:", password);
+  const [rows] = await connection.query(
+    "SELECT * FROM user WHERE username=? AND password=?",
+    [username, password]
+  );
+  if (rows.length > 0) {
+    res.send("Авторизация успешна!");
+  } else {
+    res.send("Неверный логин или пароль");
+  }
+});
 
-  //const connection = await getConnection();
-    const [rows] = await connection.query(
-      "SELECT * FROM user WHERE username=? AND password=?",
-      [username, password]
-    );
-    if (rows.length > 0) {
-      res.send("Авторизация успешна!");
-    } else {
-      res.send("Неверный логин или пароль");
-    }
-  });
-  
 app.listen(3000, () => {
   console.log("Сервер запущен на http://localhost:3000");
 });
