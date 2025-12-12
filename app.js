@@ -1,6 +1,6 @@
 import express from "express";
 import { getConnection } from "./db.js";
-const mysql = require("mysql2");
+import mysql from "mysql2";
   
 const connection = mysql.createConnection({
   host: "localhost",
@@ -30,6 +30,7 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 
 app.set("view engine", "hbs");
+app.set("JS", "./JS");
 
 // Простейший роут для проверки сервера
 app.get("/", (req, res) => {
