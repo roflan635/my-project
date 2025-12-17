@@ -1,0 +1,22 @@
+<h1>Материалы</h1>
+
+<a href="/materials/create"> Добавить материал</a>
+
+<table border="1" cellpadding="3">
+  <tr>
+    <th>ID</th>
+    <th>Заголовок</th>
+    <th>Действия</th>
+  </tr>
+
+  {{#each materials}}
+  <tr>
+    <td>{{this.id_cont}}</td>
+    <td>{{this.title}}</td>
+    <td>
+      <a href="/materials/update?id={{this.id_cont}}">Редактировать</a>
+      <a href="/materials/delete?id={{this.id_cont}}" onclick="return confirm('Удалить материал?')">Удалить</a>
+    </td>
+  </tr>
+  {{/each}}
+</table>

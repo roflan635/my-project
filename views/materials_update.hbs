@@ -1,0 +1,23 @@
+<h2>Редактировать контент</h2>
+
+<form method="POST" action="/materials/update">
+
+  <input type="hidden" name="id_cont" value="{{material.id_cont}}">
+
+  <div>
+    <label>Заголовок</label><br>
+    <input type="text" name="title" required value="{{material.title}}">
+  </div>
+
+  <div>
+    <label>Краткое описание</label><br>
+    <input type="text" name="excerpt" value="{{material.excerpt}}">
+  </div>
+
+  <div>
+    <label>Текст</label><br>
+    <textarea name="content_body" required>{{material.content_body}}</textarea>
+  </div>
+
+  <button type="submit">Сохранить</button>
+</form>

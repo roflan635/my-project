@@ -32,6 +32,7 @@ app.get("/category", async (req, res) => {
     str:str
   });
 });
+
 // Роут для страницы авторизации
 app.get("/login", (req, res) => {
   res.render("login");
@@ -85,10 +86,6 @@ app.get("/profile", async (req, res) => {
       })};
   });
 
-app.listen(3000, () => {
-  console.log("Сервер запущен на http://localhost:3000");
-});
-
 async function catalog(parent_id) {
   const [rows] = await connection.query( `SELECT id_c, category_name, parent_id FROM categories WHERE parent_id = ${parent_id}`
   );
@@ -107,3 +104,107 @@ async function catalog(parent_id) {
   str1 += '</ul>';
   return str1;
 }
+
+
+//create
+app.get("/materials/create", (req, res) => {
+  res.render("materials_create");
+});
+
+app.post("/materials/create", async (req, res) => {
+  const { title, excerpt, content_body } = req.body;
+  const token = req.cookies.session_token;
+  const [sessionRows] = await connection.query(
+  "SELECT user_id FROM sessions WHERE session_hash = ?",
+  [token]
+);
+  if (sessionRows.length === 0) {
+    return res.status(401).send("Сессия не найдена. Пожалуйста, войдите снова.");
+  }
+  //console.log(sessionRows);
+  const user = sessionRows[0].user_id;
+  const status = "rofl";
+  const publishedAt = new Date();
+  await connection.query(
+    `INSERT INTO content 
+    (title, excerpt, content_body, status, published_at, user_id_us)
+    VALUES (?, ?, ?, ?, ?, ?)`,
+    [title, excerpt, content_body, status, publishedAt, user]
+  );
+  res.redirect("/materials");
+});
+
+
+//materials
+app.get("/materials", async (req, res) => {
+    const categoryId = req.query.category;
+
+    let sql = "SELECT * FROM content";
+    let params = [];
+    if (categoryId) {
+      sql += " WHERE id_cont = ?";
+      params.push(categoryId);
+    }
+    const [materials] = await connection.query(sql, params);
+
+    res.render("materials", { materials });
+});
+
+
+//delete
+app.get("/materials/delete", async (req, res) => {
+  const materialId = req.query.id;
+  const token = req.cookies.session_token;
+
+  const [sessionRows] = await connection.query(
+    "SELECT user_id FROM sessions WHERE session_hash = ?",
+    [token]
+  );
+  const userId = sessionRows[0].user_id;
+  await connection.query(
+    "DELETE FROM content WHERE id_cont = ? AND user_id_us = ?",
+    [materialId, userId]
+  );
+  res.redirect("/materials");
+});
+
+
+//update
+app.get("/materials/update", async (req, res) => {
+  const materialId = req.query.id;
+  const token = req.cookies.session_token;
+  const [sessionRows] = await connection.query(
+    "SELECT user_id FROM sessions WHERE session_hash = ?",
+    [token]
+  );
+  const userId = sessionRows[0].user_id;
+
+  const [rows] = await connection.query(
+    "SELECT * FROM content WHERE id_cont = ? AND user_id_us = ?",
+    [materialId, userId]
+  );
+
+  res.render("materials_update", {material: rows[0]});
+});
+
+app.post("/materials/update", async (req, res) => {
+  const { id_cont, title, excerpt, content_body } = req.body;
+  const token = req.cookies.session_token;
+  const [sessionRows] = await connection.query(
+    "SELECT user_id FROM sessions WHERE session_hash = ?",
+    [token]
+  );
+  const user = sessionRows[0].user_id;
+
+  await connection.query(
+  `UPDATE content
+   SET title = ?, excerpt = ?, content_body = ?
+   WHERE id_cont = ? AND user_id_us = ?`,
+  [title, excerpt, content_body, id_cont, user || null, id_cont]
+);
+  res.redirect("/materials");
+});
+
+app.listen(3000, () => {
+  console.log("Сервер запущен на http://localhost:3000");
+});

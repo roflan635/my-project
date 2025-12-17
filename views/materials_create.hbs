@@ -1,0 +1,21 @@
+<h2>Создание контента</h2>
+
+<form method="POST" action="/materials/create">
+
+  <div>
+    <label>Заголовок</label><br>
+    <input type="text" name="title" required>
+  </div>
+
+  <div>
+    <label>Краткое описание</label><br>
+    <input type="text" name="excerpt">
+  </div>
+
+  <div>
+    <label>Текст</label><br>
+    <textarea name="content_body" ></textarea>
+  </div>
+
+  <button type="submit">Создать</button>
+</form>
